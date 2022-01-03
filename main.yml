@@ -1,0 +1,38 @@
+name: EuroPred
+
+on: 
+  schedule:
+  - cron:  '*/30 * * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: checkout repo content
+        uses: actions/checkout@v2 # checkout the repository content to github runner
+
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8 # install the python version needed
+          
+      - name: install python packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: execute py script # runs script
+        run: python tweetspred.py 
+          
+ # Add new files in data folder, commit along with other modified files, push
+      - name: Commit files
+        run: |
+          git config --local user.name actions-user
+          git config --local user.email "actions@github.com"
+          git add -A
+          git commit -am "GH ACTION Headlines $(date)"
+          git push origin main
+        env:
+          REPO_KEY: ${{secrets.GITHUB_TOKEN}}
+          username: github-actions
